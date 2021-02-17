@@ -11,6 +11,7 @@
 import pygame
 import cpuinfo
 import psutil
+import time
 
 
 class Elements_Components():
@@ -24,7 +25,7 @@ class Elements_Components():
         self.BLACK = (0, 0, 0)
         self.GREY = (102, 102, 102)
         self.LIGHT_GREY = (230, 230, 230)
-        self.FONTSIZE = 20
+        self.FONTSIZE = 16
         self.FONT = pygame.font.SysFont('Arial', self.FONTSIZE)
 
     def shows_memory_usage(self, screen, width, height, memory):
@@ -36,7 +37,7 @@ class Elements_Components():
         pygame.draw.rect(memory_surface, self.BLUE,
                          (20, 50, (width - 2 * 20), 70))
         bar_width = (width - 2 * 20) * \
-                     int(round(float(memory['Total'][:-1])))/100
+            int(round(float(memory['Total'][:-1])))/100
         pygame.draw.rect(memory_surface, self.RED, (20, 50, bar_width, 70))
         screen.blit(memory_surface, (0, height * 2/4))
         bar_text = 'Uso de Memória (Em uso: {}%):'.format(memory['Percent'])
@@ -156,7 +157,7 @@ class Elements_Components():
         text_surface.fill(self.LIGHT_GREY)
         templ = "%-15s %8s %9s %10s %8s%% %9s  %s"
         text = self.FONT.render(templ % ("Device", "Total", "Used", "Free", "Use ", "Type",
-                   "Mount"), True, self.BLACK)
+                                         "Mount"), True, self.BLACK)
         text_surface.blit(text, (20, pos_y))
         line_spacing = 23
         for k, v in _dict.items():
@@ -169,23 +170,72 @@ class Elements_Components():
         screen.blit(text_surface, (0, 0))
 
     def shows_info_file_text(self, screen, width, height, _dict, pos_y):
-        text_surface = pygame.surface.Surface((width, height * 1/3))
+        text_surface = pygame.surface.Surface((width, height))
         text_surface.fill(self.LIGHT_GREY)
         title = 'Informações sobre arquivos e diretórios'
-        subtitle = '{:<11}'.format("Tamanho") + '{:^30}'.format("Data de Modificação") + '{:^35}'.format("Data de Criação") + '{:^11}'.format("Tipo") + 'Nome'.rjust(15)
+        subtitle = '{:<11}'.format("Tamanho") + '{:^30}'.format("Data de Modificação") + \
+            '{:^35}'.format("Data de Criação") + \
+            '{:^11}'.format("Tipo") + 'Nome'.rjust(15)
         text = self.FONT.render(title, True, self.BLACK)
         text2 = self.FONT.render(subtitle, True, self.BLACK)
         text_surface.blit(text, (20, pos_y))
-        
+
         text_surface.blit(text2, (20, 35))
         line_spacing = 58
-        
 
         for k, v in _dict.items():
             text = self.FONT.render(
-                '{:<15} {:<27} {:<30} {:^11} {:<15}'.format(v[0], v[1], v[2],v[4], k),
+                '{:<15} {:<27} {:<30} {:^11} {:<15}'.format(
+                    v[0], v[1], v[2], v[4], k),
                 True,
                 self.BLACK)
             text_surface.blit(text, (20, pos_y + line_spacing))
             line_spacing += 23
+        screen.blit(text_surface, (0, 0))
+
+    def shows_pid_info_text(self, screen, width, height, pid_list, pos_y):
+        text_surface = pygame.surface.Surface((width, height))
+        text_surface.fill(self.LIGHT_GREY)
+        titulo = '{:^7}'.format("PID")
+        titulo = titulo + '{:^11}'.format("# Threads")
+        titulo = titulo + '{:^26}'.format("Criação")
+        titulo = titulo + '{:^9}'.format("T. Usu.")
+        titulo = titulo + '{:^9}'.format("T. Sis.")
+        titulo = titulo + '{:^12}'.format("Mem. (%)")
+        titulo = titulo + '{:^12}'.format("RSS")
+        titulo = titulo + '{:^12}'.format("VMS")
+        titulo = titulo + " Executável"
+        text = self.FONT.render(
+            titulo,
+            True,
+            self.BLACK)
+        text_surface.blit(text, (20, pos_y))
+        line_spacing = 23
+        if len(pid_list) > 0:
+            for pid in pid_list:
+                try:
+                    p = psutil.Process(pid)
+                    texto = '{:6}'.format(pid)
+                    texto = texto + '{:11}'.format(p.num_threads())
+                    texto = texto + " " + time.ctime(p.create_time()) + " "
+                    texto = texto + '{:8.2f}'.format(p.cpu_times().user)
+                    texto = texto + '{:8.2f}'.format(p.cpu_times().system)
+                    texto = texto + \
+                        '{:10.2f}'.format(p.memory_percent()) + " MB"
+                    rss = (p.memory_info().rss)/1024/1024
+                    texto = texto + '{:10.2f}'.format(rss) + " MB"
+                    vms = p.memory_info().vms/1024/1024
+                    texto = texto + '{:10.2f}'.format(vms) + " MB"
+                    texto = texto + " " + p.exe()
+                    # return texto
+                    text = self.FONT.render(
+                        texto,
+                        True,
+                        self.BLACK)
+                    text_surface.blit(text, (20, pos_y + line_spacing))
+                    line_spacing += 23
+                except:
+                    pass
+                break
+
         screen.blit(text_surface, (0, 0))
