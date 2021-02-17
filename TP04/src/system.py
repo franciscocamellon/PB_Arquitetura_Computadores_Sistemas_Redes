@@ -107,3 +107,4 @@ class System_Info():
                 dic[i].append(time.ctime(os.stat(i).st_mtime))
                 dic[i].append(os.path.splitext(i)[1])
                 dic[i].append('Directory')
+        return dic
