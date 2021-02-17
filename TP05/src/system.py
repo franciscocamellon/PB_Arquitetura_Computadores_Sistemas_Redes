@@ -12,6 +12,8 @@ import os
 import cpuinfo
 import psutil
 import subprocess
+import sched
+import threading
 import time
 from psutil._common import bytes2human
 
@@ -27,6 +29,8 @@ class System_Info():
         self.cpu_percent = psutil.cpu_percent(interval=None, percpu=True)
         self.disk_usage = psutil.disk_usage('/')
         self.network = psutil.net_if_addrs()
+        self.scheduler = sched.scheduler(time.time, time.sleep)
+        self.dir_list = os.listdir()
 
     def memory(self):
         ''' This function returns a dict of memory informations. '''
@@ -91,43 +95,40 @@ class System_Info():
                 network[k] = [v[1].address]
         return network
 
-    def _info_files(self):
-        lista = os.listdir()
-        dic = dict()
-        for i in lista:
-            dic[i] = []
-            if os.path.isfile(i):
-                dic[i].append(bytes2human(os.stat(i).st_size))
-                dic[i].append(time.ctime(os.stat(i).st_atime))
-                dic[i].append(time.ctime(os.stat(i).st_mtime))
-                dic[i].append(os.path.splitext(i)[1])
-                dic[i].append('File')
-            else:
-                dic[i].append(bytes2human(os.stat(i).st_size))
-                dic[i].append(time.ctime(os.stat(i).st_atime))
-                dic[i].append(time.ctime(os.stat(i).st_mtime))
-                dic[i].append(os.path.splitext(i)[1])
-                dic[i].append('Directory')
-        return dic
+    def _file_info(self, text=None):
+        print ('INICIO DO EVENTO:', time.ctime(), text)
+        file_dict = dict()
 
-    def _directory_info(self):
-        lista = os.listdir()
-        dic = dict()
-        for i in lista:
-            dic[i] = []
+        for i in self.dir_list:
             if os.path.isfile(i):
-                dic[i].append(bytes2human(os.stat(i).st_size))
-                dic[i].append(time.ctime(os.stat(i).st_atime))
-                dic[i].append(time.ctime(os.stat(i).st_mtime))
-                dic[i].append(os.path.splitext(i)[1])
-                dic[i].append('File')
+                ext = os.path.splitext(i)[1]
+                if not ext in file_dict:
+                    file_dict[ext] = dict()
+                file_dict[ext][i] = [bytes2human(os.stat(i).st_size),
+                                     time.ctime(os.stat(i).st_atime),
+                                     time.ctime(os.stat(i).st_mtime)
+                                     ]
             else:
-                dic[i].append(bytes2human(os.stat(i).st_size))
-                dic[i].append(time.ctime(os.stat(i).st_atime))
-                dic[i].append(time.ctime(os.stat(i).st_mtime))
-                dic[i].append(os.path.splitext(i)[1])
-                dic[i].append('Directory')
-        return dic
+                pass
+        print ('FIM DO EVENTO:', time.ctime(), text)
+        return file_dict
+
+    def _directory_info(self, text=None):
+        print ('INICIO DO EVENTO:', time.ctime(), text)
+        directory_dict = dict()
+
+        for i in self.dir_list:
+            if not os.path.isfile(i):
+                if not i in directory_dict:
+                    directory_dict[i] = list()
+                directory_dict[i] = [bytes2human(os.stat(i).st_size),
+                                     time.ctime(os.stat(i).st_atime),
+                                     time.ctime(os.stat(i).st_mtime)
+                                     ]
+            else:
+                pass
+        print ('FIM DO EVENTO:', time.ctime(), text)
+        return directory_dict
 
     def _pid_info(self):
         name = 'python.exe'
@@ -138,3 +139,14 @@ class System_Info():
             if p.name() == name:
                 pid_list.append(i)
         return pid_list
+
+    def _scheduler(self):
+
+        print ('INICIO:', time.ctime())
+        self.scheduler.enter(5, 1, self._file_info, ('_file_info()',))
+        self.scheduler.enter(3, 1, self._directory_info, ('_directory_info()',))
+        print ('CHAMADAS ESCALONADAS DA FUNÇÃO:', time.ctime())
+
+        self.scheduler.run()
+
+System_Info()._scheduler()
