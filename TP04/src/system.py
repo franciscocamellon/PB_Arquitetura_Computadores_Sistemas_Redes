@@ -1,25 +1,26 @@
 # -*- coding: utf-8 -*-
-"""
+'''
 /************************ TESTE DE PERFORMANCE 03 **************************
 *        Aluno           : Francisco Alves Camello Neto                    *
 *        Disciplina      : Projeto de Bloco                                *
 *        Professor       : Alcione Santos Dolavale                         *
 *        Nome do arquivo : main.py                                         *
 ***************************************************************************/
-"""
+'''
 
 import os
 import cpuinfo
 import psutil
+import subprocess
 import time
 from psutil._common import bytes2human
 
 
 class System_Info():
-    """ This class retrieves some types of system information. """
+    ''' This class retrieves some types of system information. '''
 
     def __init__(self):
-        """ Constructor. """
+        ''' Constructor. '''
         self.cpu_info = cpuinfo.get_cpu_info()
         self.cpu_count_phisycal = psutil.cpu_count(logical=False)
         self.cpu_count_logical = psutil.cpu_count(logical=True)
@@ -28,7 +29,7 @@ class System_Info():
         self.network = psutil.net_if_addrs()
 
     def memory(self):
-        """ This function returns a dict of memory informations. """
+        ''' This function returns a dict of memory informations. '''
         def format_info(info):
             dict_info = dict()
             for name in info._fields:
@@ -43,7 +44,7 @@ class System_Info():
         return memory, swap
 
     def _disk_usage(self):
-        """ This function returns a dict of disk partitions and your usages. """
+        ''' This function returns a dict of disk partitions and your usages. '''
         usage_dict = dict()
         for part in psutil.disk_partitions(all=False):
             if os.name == 'nt':
@@ -59,7 +60,7 @@ class System_Info():
         return usage_dict
 
     def _cpu_info(self):
-        """ This function returns a dictionary with informations about the cpu. """
+        ''' This function returns a dictionary with informations about the cpu. '''
         cpu_dict = dict()
         cpu_dict['Name: '] = self.cpu_info['brand_raw']
         cpu_dict['Architecture: '] = self.cpu_info['arch']
@@ -79,9 +80,9 @@ class System_Info():
         return cpu_dict
 
     def _network(self):
-        """ This function get the addresses associated to each network
+        ''' This function get the addresses associated to each network
         interface card (NIC) installed on the system and put in a dict
-        {NIC: IP}. """
+        {NIC: IP}. '''
         network = {}
         for k, v in self.network.items():
             if k == 'Loopback Pseudo-Interface 1':
@@ -108,3 +109,32 @@ class System_Info():
                 dic[i].append(os.path.splitext(i)[1])
                 dic[i].append('Directory')
         return dic
+
+    def _directory_info(self):
+        lista = os.listdir()
+        dic = dict()
+        for i in lista:
+            dic[i] = []
+            if os.path.isfile(i):
+                dic[i].append(bytes2human(os.stat(i).st_size))
+                dic[i].append(time.ctime(os.stat(i).st_atime))
+                dic[i].append(time.ctime(os.stat(i).st_mtime))
+                dic[i].append(os.path.splitext(i)[1])
+                dic[i].append('File')
+            else:
+                dic[i].append(bytes2human(os.stat(i).st_size))
+                dic[i].append(time.ctime(os.stat(i).st_atime))
+                dic[i].append(time.ctime(os.stat(i).st_mtime))
+                dic[i].append(os.path.splitext(i)[1])
+                dic[i].append('Directory')
+        return dic
+
+    def _pid_info(self):
+        name = 'python.exe'
+        lp = psutil.pids()
+        pid_list = []
+        for i in lp:
+            p = psutil.Process(i)
+            if p.name() == name:
+                pid_list.append(i)
+        return pid_list
