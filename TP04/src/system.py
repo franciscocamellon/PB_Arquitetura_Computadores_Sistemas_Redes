@@ -11,6 +11,7 @@
 import os
 import cpuinfo
 import psutil
+import time
 from psutil._common import bytes2human
 
 
@@ -59,7 +60,7 @@ class System_Info():
 
     def _cpu_info(self):
         """ This function returns a dictionary with informations about the cpu. """
-        cpu_dict = {}
+        cpu_dict = dict()
         cpu_dict['Name: '] = self.cpu_info['brand_raw']
         cpu_dict['Architecture: '] = self.cpu_info['arch']
         cpu_dict['Bits: '] = self.cpu_info['bits']
@@ -88,3 +89,21 @@ class System_Info():
             else:
                 network[k] = [v[1].address]
         return network
+
+    def _info_files(self):
+        lista = os.listdir()
+        dic = dict()
+        for i in lista:
+            dic[i] = []
+            if os.path.isfile(i):
+                dic[i].append(bytes2human(os.stat(i).st_size))
+                dic[i].append(time.ctime(os.stat(i).st_atime))
+                dic[i].append(time.ctime(os.stat(i).st_mtime))
+                dic[i].append(os.path.splitext(i)[1])
+                dic[i].append('File')
+            else:
+                dic[i].append(bytes2human(os.stat(i).st_size))
+                dic[i].append(time.ctime(os.stat(i).st_atime))
+                dic[i].append(time.ctime(os.stat(i).st_mtime))
+                dic[i].append(os.path.splitext(i)[1])
+                dic[i].append('Directory')
