@@ -35,8 +35,8 @@ class Elements_Components():
         memory_surface.fill(self.GREY)
         pygame.draw.rect(memory_surface, self.BLUE,
                          (20, 50, (width - 2 * 20), 70))
-        bar_width = (width - 2 * 20) * int(round(float(memory['Total'][:-1])))/100
-        print(bar_width)
+        bar_width = (width - 2 * 20) * \
+                     int(round(float(memory['Total'][:-1])))/100
         pygame.draw.rect(memory_surface, self.RED, (20, 50, bar_width, 70))
         screen.blit(memory_surface, (0, height * 2/4))
         bar_text = 'Uso de Memória (Em uso: {}%):'.format(memory['Percent'])
@@ -63,14 +63,17 @@ class Elements_Components():
         x = y = desl = 10
 
         column_height = height * 4/5 - 2 * 10
-        column_width = (width - 2 * 10 - (len(cpu_percent['cpus']) + 1 ) * 10) / len(cpu_percent['cpus'])
+        column_width = (
+            width - 2 * 10 - (len(cpu_percent['cpus']) + 1) * 10) / len(cpu_percent['cpus'])
 
         d = x + desl
 
         for i in cpu_percent['cpus']:
 
-            pygame.draw.rect(surface, self.RED, (d, y, column_width, column_height))
-            pygame.draw.rect(surface, self.BLUE, (d, y, column_width, (1-i/100)*column_height))
+            pygame.draw.rect(surface, self.RED,
+                             (d, y, column_width, column_height))
+            pygame.draw.rect(surface, self.BLUE,
+                             (d, y, column_width, (1-i/100)*column_height))
             d = d + column_width + desl
 
         screen.blit(surface, (0, height / 5))
@@ -116,9 +119,11 @@ class Elements_Components():
         disk_surface.fill(self.GREY)
 
         for device, values in disk.items():
-            pygame.draw.rect(disk_surface, self.BLUE, (20, y_pos, (width - 2 * 20), 35))
+            pygame.draw.rect(disk_surface, self.BLUE,
+                             (20, y_pos, (width - 2 * 20), 35))
             bar_width = (width - 2 * 20) * int(float(values[0][:-1])) / 100
-            pygame.draw.rect(disk_surface, self.RED, (20, y_pos, bar_width, 35))
+            pygame.draw.rect(disk_surface, self.RED,
+                             (20, y_pos, bar_width, 35))
             screen.blit(disk_surface, (0, 2 * height * 2/3))
             bar_text = 'Disco {} (Em uso: {}%):'.format(device, values[3])
             text = self.FONT.render(bar_text, 1, self.WHITE)
@@ -159,6 +164,28 @@ class Elements_Components():
                 templ % (k, v[0], v[1], v[2], v[3], v[4], v[5]),
                 True,
                 self.BLACK)
-            text_surface.blit(text, (20, pos_y + line_spacing)
+            text_surface.blit(text, (20, pos_y + line_spacing))
+            line_spacing += 23
+        screen.blit(text_surface, (0, 0))
+
+    def shows_info_file_text(self, screen, width, height, _dict, pos_y):
+        text_surface = pygame.surface.Surface((width, height * 1/3))
+        text_surface.fill(self.LIGHT_GREY)
+        title = 'Informações sobre arquivos e diretórios'
+        subtitle = '{:<11}'.format("Tamanho") + '{:^30}'.format("Data de Modificação") + '{:^35}'.format("Data de Criação") + '{:^11}'.format("Tipo") + 'Nome'.rjust(15)
+        text = self.FONT.render(title, True, self.BLACK)
+        text2 = self.FONT.render(subtitle, True, self.BLACK)
+        text_surface.blit(text, (20, pos_y))
+        
+        text_surface.blit(text2, (20, 35))
+        line_spacing = 58
+        
+
+        for k, v in _dict.items():
+            text = self.FONT.render(
+                '{:<15} {:<27} {:<30} {:^11} {:<15}'.format(v[0], v[1], v[2],v[4], k),
+                True,
+                self.BLACK)
+            text_surface.blit(text, (20, pos_y + line_spacing))
             line_spacing += 23
         screen.blit(text_surface, (0, 0))
