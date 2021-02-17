@@ -36,7 +36,6 @@ class Elements_Components():
         pygame.draw.rect(memory_surface, self.BLUE,
                          (20, 50, (width - 2 * 20), 70))
         bar_width = (width - 2 * 20) * int(round(float(memory['Total'][:-1])))/100
-        print(bar_width)
         pygame.draw.rect(memory_surface, self.RED, (20, 50, bar_width, 70))
         screen.blit(memory_surface, (0, height * 2/4))
         bar_text = 'Uso de Memória (Em uso: {}%):'.format(memory['Percent'])
@@ -159,6 +158,6 @@ class Elements_Components():
                 templ % (k, v[0], v[1], v[2], v[3], v[4], v[5]),
                 True,
                 self.BLACK)
-            text_surface.blit(text, (20, pos_y + line_spacing)
+            text_surface.blit(text, (20, pos_y + line_spacing))
             line_spacing += 23
         screen.blit(text_surface, (0, 0))

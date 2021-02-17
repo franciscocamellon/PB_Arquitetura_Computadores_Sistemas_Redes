@@ -71,7 +71,3 @@ class System_Info():
             else:
                 network[k] = [v[1].address]
         return network
-
-
-a = System_Info()._network()['Ethernet']
-print(a)
