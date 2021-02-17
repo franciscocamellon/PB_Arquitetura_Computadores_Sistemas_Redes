@@ -80,6 +80,14 @@ class MainWindow():
                 self.SIZE[1],
                 System_Info()._network(), 10)
 
+        elif self.count == 4:
+            pass
+            Elements_Components().shows_info_file_text(
+                screen,
+                self.SIZE[0],
+                self.SIZE[1],
+                System_Info()._info_files(), 10)
+
     def init_class(self):
         while not self.finish:
             for event in pygame.event.get():
