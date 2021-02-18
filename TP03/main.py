@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-/************************ TESTE DE PERFORMANCE 02 **************************
+/************************ TESTE DE PERFORMANCE 03 **************************
 *        Aluno           : Francisco Alves Camello Neto                    *
 *        Disciplina      : Projeto de Bloco                                *
 *        Professor       : Alcione Santos Dolavale                         *
