@@ -25,7 +25,7 @@ class MainWindow():
         self.DISPLAY_NAME = pygame.display.set_caption('Análise do Sistema')
         self.finish = False
         self.FPS_COUNT = 60
-        self.count = 5
+        self.count = 0
         self.fontIntro = pygame.font.SysFont("Times New Roman", 30)
 
     def drawIntro(self, screen):
