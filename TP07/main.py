@@ -14,7 +14,7 @@ from src.components import Elements_Components
 
 
 class MainWindow():
-    """ Docstring """
+    """ Docstring  """
 
     def __init__(self):
         pygame.init()
