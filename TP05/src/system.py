@@ -30,7 +30,7 @@ class System_Info():
         self.disk_usage = psutil.disk_usage('/')
         self.network = psutil.net_if_addrs()
         self.scheduler = sched.scheduler(time.time, time.sleep)
-        self.dir_list = os.listdir()
+        
 
     def memory(self):
         ''' This function returns a dict of memory informations. '''
@@ -95,29 +95,49 @@ class System_Info():
                 network[k] = [v[1].address]
         return network
 
-    def _file_info(self, text=None):
+    def _directory_file_info(self, text=None):
         print ('INICIO DO EVENTO:', time.ctime(), text)
-        file_dict = dict()
+        path = ".\\"
+        os.chdir(path)
+        current_path = os.getcwd()
+        dir_list = os.listdir(current_path)
+        info_dict = dict()
 
-        for i in self.dir_list:
-            if os.path.isfile(i):
-                ext = os.path.splitext(i)[1]
-                if not ext in file_dict:
-                    file_dict[ext] = dict()
-                file_dict[ext][i] = [bytes2human(os.stat(i).st_size),
-                                     time.ctime(os.stat(i).st_atime),
-                                     time.ctime(os.stat(i).st_mtime)
-                                     ]
-            else:
-                pass
-        print ('FIM DO EVENTO:', time.ctime(), text)
-        return file_dict
+        if text == 'arquivo':
+            for i in dir_list:
+                if os.path.isfile(i):
+                    ext = os.path.splitext(i)[1]
+                    if not ext in info_dict:
+                        info_dict[ext] = dict()
+                    info_dict[ext][i] = [bytes2human(os.stat(i).st_size),
+                                        time.ctime(os.stat(i).st_mtime),
+                                        time.ctime(os.stat(i).st_atime)
+                                        ]
+                else:
+                    pass
+        else:
+            for i in dir_list:
+                if not os.path.isfile(i):
+                    if not i in info_dict:
+                        info_dict[i] = list()
+                    info_dict[i] = [bytes2human(os.stat(i).st_size),
+                                        time.ctime(os.stat(i).st_atime),
+                                        time.ctime(os.stat(i).st_mtime)
+                                        ]
+                else:
+                    pass
+
+        return info_dict
 
     def _directory_info(self, text=None):
         print ('INICIO DO EVENTO:', time.ctime(), text)
+        path = ".\\"
+        os.chdir(path)
+        current_path = os.getcwd()
+        dir_list = os.listdir(current_path)
         directory_dict = dict()
 
-        for i in self.dir_list:
+        for i in dir_list:
             if not os.path.isfile(i):
                 if not i in directory_dict:
                     directory_dict[i] = list()
@@ -128,6 +148,7 @@ class System_Info():
             else:
                 pass
         print ('FIM DO EVENTO:', time.ctime(), text)
+        print(directory_dict)
         return directory_dict
 
     def _pid_info(self):
@@ -143,10 +164,10 @@ class System_Info():
     def _scheduler(self):
 
         print ('INICIO:', time.ctime())
-        self.scheduler.enter(5, 1, self._file_info, ('_file_info()',))
+        self.scheduler.enter(5, 1, self._directory_file_info, ('_file_info()',))
         self.scheduler.enter(3, 1, self._directory_info, ('_directory_info()',))
         print ('CHAMADAS ESCALONADAS DA FUNÇÃO:', time.ctime())
 
         self.scheduler.run()
 
-System_Info()._scheduler()
+System_Info()._directory_info()

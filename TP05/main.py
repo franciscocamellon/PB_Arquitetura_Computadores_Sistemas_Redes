@@ -25,7 +25,7 @@ class MainWindow():
         self.DISPLAY_NAME = pygame.display.set_caption('Análise do Sistema')
         self.finish = False
         self.FPS_COUNT = 60
-        self.count = 5
+        self.count = 4
         self.fontIntro = pygame.font.SysFont("Times New Roman", 30)
 
     def drawIntro(self, screen):
@@ -82,11 +82,16 @@ class MainWindow():
 
         elif self.count == 4:
             pass
-            # Elements_Components().shows_info_file_text(
-            #     screen,
-            #     self.SIZE[0],
-            #     self.SIZE[1],
-            #     System_Info()._info_files(), 10)
+            Elements_Components().shows_info_file_text(
+                screen,
+                self.SIZE[0],
+                self.SIZE[1],
+                System_Info()._directory_file_info(), 10, 'arquivos')
+            Elements_Components().shows_info_file_text(
+                screen,
+                self.SIZE[0],
+                self.SIZE[1],
+                System_Info()._directory_file_info(), 100, 'Diretórios')
                 
         elif self.count == 5:
             Elements_Components().shows_pid_info_text(

@@ -169,28 +169,39 @@ class Elements_Components():
             line_spacing += 23
         screen.blit(text_surface, (0, 0))
 
-    def shows_info_file_text(self, screen, width, height, _dict, pos_y):
+    def shows_info_file_text(self, screen, width, height, _dict, pos_y, text):
         text_surface = pygame.surface.Surface((width, height))
         text_surface.fill(self.LIGHT_GREY)
-        title = 'Informações sobre arquivos e diretórios'
-        subtitle = '{:<11}'.format("Tamanho") + '{:^30}'.format("Data de Modificação") + \
-            '{:^35}'.format("Data de Criação") + \
-            '{:^11}'.format("Tipo") + 'Nome'.rjust(15)
+        title = 'Informações sobre {}'.format(text)
+        subtitle = '{:<10} {:<15} {:<20} {:^30} {:<25}'.format(
+            'Tipo', 'Nome', 'Tamanho', 'Criação', 'Modificação')
         text = self.FONT.render(title, True, self.BLACK)
         text2 = self.FONT.render(subtitle, True, self.BLACK)
         text_surface.blit(text, (20, pos_y))
 
-        text_surface.blit(text2, (20, 35))
+        text_surface.blit(text2, (20, pos_y+25))
         line_spacing = 58
 
         for k, v in _dict.items():
-            text = self.FONT.render(
-                '{:<15} {:<27} {:<30} {:^11} {:<15}'.format(
-                    v[0], v[1], v[2], v[4], k),
-                True,
-                self.BLACK)
-            text_surface.blit(text, (20, pos_y + line_spacing))
-            line_spacing += 23
+            if text == 'arquivo':
+                for i, j in v.items():
+                    text = self.FONT.render(
+                        '{:<10} {:<15} {:<20} {:^30} {:<25}'.format(
+                            k, i, j[0], j[1], j[2]),
+                        True,
+                        self.BLACK)
+                    text_surface.blit(text, (20, pos_y + line_spacing))
+                    line_spacing += 23
+            else:
+                for item in v:
+                    text = self.FONT.render(
+                        '{:<15} {:<20} {:^30} {:<25}'.format(
+                            k, item[0], item[1], item[2]),
+                        True,
+                        self.BLACK)
+                    text_surface.blit(text, (20, pos_y + line_spacing))
+                    line_spacing += 23
+
         screen.blit(text_surface, (0, 0))
 
     def shows_pid_info_text(self, screen, width, height, pid_list, pos_y):
