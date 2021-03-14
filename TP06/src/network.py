@@ -41,7 +41,8 @@ class Network():
         self.FONT = pygame.font.SysFont('Arial', self.FONTSIZE)
         self.FPSCLOCK = pygame.time.Clock()
         self.FPS = 60
-        self.DISPLAY_NAME = pygame.display.set_caption('Mapeando informações de Rede')
+        self.DISPLAY_NAME = pygame.display.set_caption(
+            'Mapeando informações de Rede')
         self.finish = False
         self.count = 60
         self.fontIntro = pygame.font.SysFont("Times New Roman", 30)
@@ -164,8 +165,6 @@ class Network():
             line_spacing += 20
         self.SCREEN.blit(text_surface, (0, 0))
 
-        # y_pos += 65
-
     def init_class(self):
 
         self.verifica_hosts()
@@ -176,20 +175,10 @@ class Network():
                 if event.type == pygame.QUIT:
                     self.finish = True
 
-            # if self.count == 60:
-            #     self.shows_network_mapping()
-            #     self.count = 0
-
-            
             self.show_network_text()
 
-            # Atualiza o desenho na tela
-            pygame.display.update()
+            pygame.display.flip()
 
-            # self.count += 1
-            # 60 frames por segundo
-            # self.FPSCLOCK.tick(self.FPS)
-        # Finaliza a janela
         pygame.display.quit()
 
 
