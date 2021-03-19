@@ -20,7 +20,7 @@ msgFromClient = " Hello UDP Server"
 bytesToSend = msgFromClient.encode('ascii')
 
 serverAddressPort = (socket.gethostname(), 9991)
-bufferSize = 1024
+bufferSize = 4096
 
 # Create a UDP socket at client side
 UDPClientSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
@@ -34,18 +34,27 @@ try:
     print(_msg)
 
     for k, v in _msg.items():
-        if k == "cpu":
-            print('===' * 25, 'Informações da CPU'.center(75), '===' * 25, sep='\n')
+        if k == "file":
+            print('====' * 23, 'Informações de arquivos e diretótios'.center(92), '====' * 23,
+                  '{:<13}{:<30}{:^19}{:^20}{:<10}'.format("Tamanho", "Data de Modificação", "Data de Criação", "Tipo", 'Nome'), sep='\n')
+            for _file, _file_values in v.items():
+                print('{:<10} {:<27} {:<30} {:<10} {:<15}'.format(
+                    _file_values[0], _file_values[1], _file_values[2], _file_values[4], _file))
+            print('----' * 23,)
+        elif k == "cpu":
+            print('====' * 23, 'Informações da CPU'.center(92),
+                  '====' * 23, sep='\n')
             for info_type, info in v.items():
                 if info_type != 'cpus':
                     print('{}: {}'.format(info_type, info))
                 else:
-                    pass       
-            print('---' * 25)
+                    pass
+            print('----' * 23,)
             time.sleep(3)
 
         elif k == "disk":
-            print('===' * 25, 'Informações do disco'.center(75), '===' * 25, sep='\n')
+            print('====' * 23, 'Informações do disco'.center(92),
+                  '====' * 23, sep='\n')
             templ = "%-17s %8s %8s %8s %5s%% %9s  %s"
             print(templ % ("Device", "Total", "Used", "Free", "Use ", "Type",
                            "Mount"))
@@ -62,16 +71,18 @@ try:
                     int(usage.percent),
                     part.fstype,
                     part.mountpoint))
-            print('---' * 25)
+            print('----' * 23,)
             time.sleep(3)
 
         elif k == "memory":
-            print('===' * 25, 'Informações de memória'.center(75), '===' * 25, sep='\n')
+            print('====' * 23, 'Informações de memória'.center(92),
+                  '====' * 23, sep='\n')
             for mem, values in v.items():
                 for info_type, _info in values.items():
                     print('{}: {}'.format(info_type, _info))
-            print('---' * 25)
-            
+            print('----' * 23,)
+
+        
 
 
 except Exception as erro:

@@ -21,14 +21,20 @@ bufferSize = 1024
 msgFromServer = "Olá cliente UDP"
 bytesToSend = str.encode(msgFromServer)
 
+file_directory = _sys()._info_files()
+pid_info = _sys()._pid_info()
 disk_info = psutil.disk_partitions(all=False)
 normal = _sys().memory()[0]
 swap = _sys().memory()[1]
 cpu = _sys()._cpu_info()
+
 message = dict()
+message['file'] = file_directory
+message['pid'] = pid_info
 message['cpu'] = cpu
 message['memory'] = {'normal':normal}
 message['disk'] = disk_info
+
 bytes_to_send = pickle.dumps(message)
 
 # Create a datagram socket
