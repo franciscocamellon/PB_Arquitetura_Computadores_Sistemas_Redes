@@ -10,4 +10,4 @@
 - [x] [Teste de Performance 06](https://github.com/franciscocamellon/PB_Arquitetura_Computadores_Sistemas_Redes/tree/master/TP06)
 - [x] [Teste de Performance 07](https://github.com/franciscocamellon/PB_Arquitetura_Computadores_Sistemas_Redes/tree/master/TP07)
 - [x] [Teste de Performance 08](https://github.com/franciscocamellon/PB_Arquitetura_Computadores_Sistemas_Redes/tree/master/TP08)
-- [  ] [Teste de Performance 09](https://github.com/franciscocamellon/PB_Arquitetura_Computadores_Sistemas_Redes/tree/master/TP09)
+- [ ] [Teste de Performance 09](https://github.com/franciscocamellon/PB_Arquitetura_Computadores_Sistemas_Redes/tree/master/TP09)
