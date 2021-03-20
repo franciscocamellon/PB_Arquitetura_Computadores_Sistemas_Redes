@@ -7,17 +7,18 @@
 *        Nome do arquivo : main.py                                         *
 ***************************************************************************/
 """
-#fjhdjjhslhd
+
 import os
 import subprocess
 import platform
 import errno
 import socket
-import logging
-import pygame
+import nmap
 
 
 class Network():
+
+    nmScan = nmap.PortScanner()
 
     # localhost prefixes
     _local_networks = ("127.", "0:0:0:0:0:0:0:1")
@@ -27,26 +28,7 @@ class Network():
         ("0.", "0:0:0:0:0:0:0:0", "169.254.", "fe80:")
 
     def __init__(self):
-        pygame.init()
-        self.SIZE = (800, 750)
-        self.SCREEN = pygame.display.set_mode(
-            (self.SIZE[0], self.SIZE[1]))
-        self.BLUE = (0, 0, 255)
-        self.RED = (255, 0, 0)
-        self.WHITE = (255, 255, 255)
-        self.BLACK = (0, 0, 0)
-        self.GREY = (102, 102, 102)
-        self.LIGHT_GREY = (230, 230, 230)
-        self.FONTSIZE = 16
-        self.FONT = pygame.font.SysFont('Arial', self.FONTSIZE)
-        self.FPSCLOCK = pygame.time.Clock()
-        self.FPS = 60
-        self.DISPLAY_NAME = pygame.display.set_caption(
-            'Mapeando informações de Rede')
-        self.finish = False
-        self.count = 60
-        self.fontIntro = pygame.font.SysFont("Times New Roman", 30)
-        self.valid_hosts = []
+        self.valid_hosts = dict()
         self.localhost = ''
         self.localhost_base_ip = ''
 
@@ -111,69 +93,79 @@ class Network():
         return local
 
     def verifica_hosts(self):
-        return_codes = dict()
+        """Verifica todos os host com a base_ip entre 1 e 255 retorna uma lista com
+        todos os host que tiveram resposta 0 (ativo)"""
+
         def retorna_codigo_ping(hostname):
+            """Usa o utilitario ping do sistema operacional para encontrar   o host. ('-c 5') indica, em sistemas linux, que deve mandar 5   pacotes. ('-W 3') indica, em sistemas linux, que deve esperar 3   milisegundos por uma resposta. Esta funcao retorna o codigo de   resposta do ping """
+
             plataforma = platform.system()
             args = []
+
             if plataforma == "Windows":
                 args = ["ping", "-n", "1", "-l", "1", "-w", "100", hostname]
             else:
                 args = ['ping', '-c', '1', '-W', '1', hostname]
+
             ret_cod = subprocess.call(args,
                                       stdout=open(os.devnull, 'w'),
                                       stderr=open(os.devnull, 'w'))
             return ret_cod
+
+        def scan_host(host):
+            self.nmScan.scan(host)
+            for proto in self.nmScan[host].all_protocols():
+                lport = self.nmScan[host][proto].keys()
+                result = dict()
+                result['Protocolo'] = proto
+                result['Portas'] = list()
+                for port in lport:
+                    result['Portas'].append((port, self.nmScan[host][proto][port]['state']))
+                # net_scan = dict()
+                # net_scan[host] = result
+                return result
+
+        def default_gateway():
+            if os.name == "posix":
+                dgw = os.system('ip r | grep default | awk {"print $3"}')
+                return dgw
+            if os.name == "nt":
+                dgw = os.system('ipconfig | findstr /i "Gateway"')
+                return dgw
+
+
+        def subnet_mask():
+            if os.name == "posix":
+                sm = os.system('ip r | grep default | awk {"print $3"}')
+                return sm
+            if os.name == "nt":
+                sm = os.system('ipconfig | findstr /i "Sub-rede"')
+                return sm
+
 
         localhost_ip = self.get_local_addr(None, False)
         self.localhost = localhost_ip
         localhost_ip_split = localhost_ip.split('.')
         localhost_base_ip = ".".join(localhost_ip_split[0:3]) + '.'
         self.localhost_base_ip = localhost_base_ip
-
         print("Mapeando\r")
+        return_codes = dict()
+        valid_hosts = []
+        self.valid_hosts['hosts'] = []
         for i in range(1, 255):
             host = localhost_base_ip + '{0}'.format(i)
             return_codes[host] = retorna_codigo_ping(host)
+
             if i % 20 == 0:
                 print('.')
+            
             if return_codes[host] == 0:
-                self.valid_hosts.append(host)
-        print("\nMapeamento completo!")
-        
+                valid_hosts.append(host)
+                self.valid_hosts['hosts'].append(host)
+                self.valid_hosts[host] = scan_host(host)
+
+        print("\nMapping ready...")
+
         return self.valid_hosts
 
-    def show_network_text(self):
-        text_surface = pygame.surface.Surface((self.SIZE[0], self.SIZE[1]))
-        text_surface.fill(self.LIGHT_GREY)
-        title = self.FONT.render("O teste foi feito na sub rede: {}".format(
-            self.localhost_base_ip), True, self.BLACK)
-        text_surface.blit(title, (20, 20))
-        line_spacing = title.get_height() + 20
-        sub_title = self.FONT.render("Os host válidos são: ", True, self.BLACK)
-        text_surface.blit(sub_title, (30, line_spacing))
-        line_spacing += 20
-
-        for host in self.valid_hosts:
-            host_text = self.FONT.render(host, True, self.BLACK)
-            text_surface.blit(host_text, (35, line_spacing))
-            line_spacing += 20
-        self.SCREEN.blit(text_surface, (0, 0))
-
-    def init_class(self):
-
-        self.verifica_hosts()
-        self.DISPLAY_NAME = pygame.display.set_caption('Informações de Rede')
-
-        while not self.finish:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.finish = True
-
-            self.show_network_text()
-
-            pygame.display.flip()
-
-        pygame.display.quit()
-
-
-Network().init_class()
+    

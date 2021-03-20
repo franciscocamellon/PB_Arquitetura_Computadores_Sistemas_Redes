@@ -62,20 +62,20 @@ class System_Info():
     def _cpu_info(self):
         ''' This function returns a dictionary with informations about the cpu. '''
         cpu_dict = dict()
-        cpu_dict['Name: '] = self.cpu_info['brand_raw']
-        cpu_dict['Architecture: '] = self.cpu_info['arch']
-        cpu_dict['Bits: '] = self.cpu_info['bits']
+        cpu_dict['Name '] = self.cpu_info['brand_raw']
+        cpu_dict['Architecture '] = self.cpu_info['arch']
+        cpu_dict['Bits '] = self.cpu_info['bits']
         if self.cpu_info['hz_actual'][0] % 10**9 > 0:
-            cpu_dict['Frequency: '] = str(
+            cpu_dict['Frequency '] = str(
                 round((self.cpu_info['hz_actual'][0]/10**9), 2)) + ' Ghz'
         elif self.cpu_info['hz_actual'][0] % 10**6 > 0:
-            cpu_dict['Frequency: '] = str(
+            cpu_dict['Frequency '] = str(
                 round((self.cpu_info['hz_actual'][0]/10**9), 2)) + ' Mhz'
         elif self.cpu_info['hz_actual'][0] % 10**3 > 0:
-            cpu_dict['Frequency: '] = str(
+            cpu_dict['Frequency '] = str(
                 round((self.cpu_info['hz_actual'][0]/10**9), 2)) + ' Khz'
-        cpu_dict['Physical Cores: '] = self.cpu_count_phisycal
-        cpu_dict['Logical Cores: '] = self.cpu_count_logical
+        cpu_dict['Physical Cores '] = self.cpu_count_phisycal
+        cpu_dict['Logical Cores '] = self.cpu_count_logical
         cpu_dict['cpus'] = self.cpu_percent
         return cpu_dict
 
@@ -132,9 +132,22 @@ class System_Info():
     def _pid_info(self):
         name = 'python.exe'
         lp = psutil.pids()
-        pid_list = []
+        info_dict = dict()
         for i in lp:
-            p = psutil.Process(i)
-            if p.name() == name:
-                pid_list.append(i)
-        return pid_list
+            try:
+                p = psutil.Process(i)
+                exec_path = p.exe()
+                if psutil.pid_exists(i) and p.name() == name:
+                    info_dict['Executável'] = exec_path.split('\\')[-1]
+                    info_dict['PID'] = i
+                    info_dict['Threads'] = p.num_threads()
+                    info_dict['Criação'] = time.ctime(p.create_time())
+                    info_dict['T. Usu.'] = p.cpu_times().user
+                    info_dict['T. Sis.'] = p.cpu_times().system
+                    info_dict['Mem. (%)'] = round(p.memory_percent(),2)
+                    info_dict['RSS'] = bytes2human(p.memory_info().rss)
+                    info_dict['VMS'] = bytes2human(p.memory_info().vms)
+                    
+            except:
+                pass
+        return info_dict

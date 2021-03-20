@@ -147,27 +147,47 @@ class System_Info():
                                      ]
             else:
                 pass
+
+        for _file, _file_values in directory_dict.items():
+            print('  {:<10} {:<27} {:<30} {:<10}'.format(_file_values[0], _file_values[1], _file_values[2], _file))
         print ('FIM DO EVENTO:', time.ctime(), text)
-        print(directory_dict)
+        
         return directory_dict
 
-    def _pid_info(self):
+    def _pid_info(self, text=None):
+        print ('INICIO DO EVENTO:', time.ctime(), text)
         name = 'python.exe'
         lp = psutil.pids()
-        pid_list = []
+        info_dict = dict()
         for i in lp:
-            p = psutil.Process(i)
-            if p.name() == name:
-                pid_list.append(i)
-        return pid_list
+            try:
+                p = psutil.Process(i)
+                exec_path = p.exe()
+                if psutil.pid_exists(i) and p.name() == name:
+                    info_dict['Executável'] = exec_path.split('\\')[-1]
+                    info_dict['PID'] = i
+                    info_dict['Threads'] = p.num_threads()
+                    info_dict['Criação'] = time.ctime(p.create_time())
+                    info_dict['T. Usu.'] = p.cpu_times().user
+                    info_dict['T. Sis.'] = p.cpu_times().system
+                    info_dict['Mem. (%)'] = round(p.memory_percent(),2)
+                    info_dict['RSS'] = bytes2human(p.memory_info().rss)
+                    info_dict['VMS'] = bytes2human(p.memory_info().vms)
+            except:
+                pass
+        for pid, info_pid in info_dict.items():
+            print('{}{:<10}: {:<30}'.format(' '*2, pid, info_pid))
+
+        print ('FIM DO EVENTO:', time.ctime(), text)
+        return info_dict
 
     def _scheduler(self):
 
         print ('INICIO:', time.ctime())
-        self.scheduler.enter(5, 1, self._directory_file_info, ('_file_info()',))
+        self.scheduler.enter(5, 1, self._pid_info, ('_file_info()',))
         self.scheduler.enter(3, 1, self._directory_info, ('_directory_info()',))
         print ('CHAMADAS ESCALONADAS DA FUNÇÃO:', time.ctime())
 
         self.scheduler.run()
 
-System_Info()._directory_info()
+System_Info()._scheduler()
